@@ -10,7 +10,7 @@ import java.util.*;
  * Created by FromxSoul on 07.10.2016.
  */
 @Component
-public class Helper {
+public class MultipartUploadHelper {
 
     public List<File> multiFileConverter(MultipartFile[] files) throws IOException {
         List<File> multipartFiles = new ArrayList<>();

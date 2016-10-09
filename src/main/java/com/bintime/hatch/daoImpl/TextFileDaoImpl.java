@@ -93,7 +93,7 @@ public class TextFileDaoImpl implements TextFileDao {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if ((session != null) && (session.isOpen())) {
+            if (session != null) {
                 session.close();
             }
         }

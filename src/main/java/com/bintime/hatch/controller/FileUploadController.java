@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.bintime.hatch.helper.Helper;
+import com.bintime.hatch.helper.MultipartUploadHelper;
 import com.bintime.hatch.model.TextFile;
 import com.bintime.hatch.service.TextFileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileUploadController {
 
 	@Autowired
-	private Helper helper;
+	private MultipartUploadHelper multipartUploadHelper;
 
 	@Autowired
 	private TextFileService textFileService;
@@ -42,40 +42,41 @@ public class FileUploadController {
 
 
 	@RequestMapping(value = "/upload", headers = "content-type=multipart/*", method = RequestMethod.POST)
-	public ResponseEntity<Void> uploadMultipleFileHandler(@RequestParam("file") MultipartFile[] files) throws IOException, SQLException {
+	public ResponseEntity<Void> uploadMultipleFileHandler(@RequestParam("file") MultipartFile[] files)
+			throws IOException, SQLException {
 
-		final List<File> converterFiles = helper.multiFileConverter(files);
-		final ExecutorService exec = Executors.newFixedThreadPool(3);
+		final List<File> converterFiles = multipartUploadHelper.multiFileConverter(files);
+		final ExecutorService exec = Executors.newFixedThreadPool(3);  											// the beginning of triple parallel process
 
 		exec.submit(new Runnable() {
 			@Override
 			public void run() {
-				for (File readAbleFile : converterFiles) {
-					try (BufferedReader br = new BufferedReader(new FileReader(readAbleFile))) {
+				for (File readAbleFile : converterFiles) {														// look over all responsed text files
+					try (BufferedReader br = new BufferedReader(new FileReader(readAbleFile))) {				// read each text file
 						String line = null;
 						while ((line = br.readLine()) != null) {
-							Map<String, Integer> staff = helper.stringCounter(readAbleFile);
+							Map<String, Integer> staff = multipartUploadHelper.stringCounter(readAbleFile);		// get map with word + the number of repeats (key:value)
 
-							for (Map.Entry entry : staff.entrySet()) {
+							for (Map.Entry entry : staff.entrySet()) {											// look over each word and get his info
 								String key = (String) entry.getKey();
 								int value = (int) entry.getValue();
 								TextFile textFile = new TextFile();
 
-								if (textFileService.getTextFileByValue(key) != null) {
+								if (textFileService.getTextFileByValue(key) != null) {							// if this word has already been in DB -> change his quantity
 									textFile = textFileService.getTextFileByValue(key);
 									int margin = value;
 									int newCount = textFile.getCount() + margin;
 									textFile.setCount(newCount);
 									textFileService.editTextFile(textFile);
 
-								} else {
+								} else {																		// if this word's new -> store into DB
 									textFile.setValue(key);
 									textFile.setCount(value);
 									textFileService.addTextFile(textFile);
 								}
 							}
 						}
-						br.close();
+						br.close();																				// close bufferedReader action
 
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
@@ -84,7 +85,7 @@ public class FileUploadController {
 					} catch (SQLException e) {
 						e.printStackTrace();
 					} finally {
-						exec.shutdown();
+						exec.shutdown();																		// close executorService action
 					}
 				}
 			}
