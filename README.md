@@ -6,7 +6,8 @@ Used technologies:<br/>
 3) MySQL DB;<br>
 4) Spring framework;<br>
 5) Hibernate ORM;<br>
-6) Tomcat8;
+6) Tomcat8;<br/>
+
 
 
 SQL dump:
@@ -14,13 +15,14 @@ CREATE TABLE `testrest`.`text_file` (
   `word_id` INT NOT NULL AUTO_INCREMENT,
   `value` VARCHAR(45) NULL,
   `count` INT NULL,
-  PRIMARY KEY (`word_id`));
+  PRIMARY KEY (`word_id`)); <br/>
+
 
 
 Requirements for uploaded files:
-1) Each word should separated by comma and 1 space. For example: "table, change, task, plane";
+1) Each word should separated by comma and 1 space. For example: "table, change, task, plane"; <br/>
 
-For the most simple and comfortable testing has created jsp page to make POST action to required REST controller method (upload.jsp);
+For the most simple and comfortable testing has created jsp page to make POST action to required REST controller method (upload.jsp);<br/>
 
 Steps to open and deploy project:<br/>
 1) git clone https://github.com/xotdushinskix/BinTimeTestTask.git<br/>
